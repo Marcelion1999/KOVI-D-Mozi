@@ -12,6 +12,11 @@ namespace KOVI_D_Mozi
         static List<Film> Filmek = new List<Film>();
         static List<Szék> Székek = new List<Szék>();
         static List<Felhasználó> Userek = new List<Felhasználó>();
+
+
+        public enum User_Státusz { User_Állapot}
+        public enum Jegy_Státusz { Jegy_Állapot}
+
         #region Kinézet
         static int tableWidth = 75;
         static void PrintHeader()
@@ -130,7 +135,6 @@ namespace KOVI_D_Mozi
         #endregion
         private static bool MainMenu()
         {
-
             Console.Clear();
             PrintHeader();
             Console.WriteLine("Válassz egy menüpontot:");
@@ -151,6 +155,7 @@ namespace KOVI_D_Mozi
                     Regisztráció();
                     break;
                 case "3":
+                    Keresés();
                     break;
                 case "4":
                     Listázás();
@@ -191,6 +196,9 @@ namespace KOVI_D_Mozi
         }
         static void Listázás() 
         {
+            Console.Clear();
+            PrintHeader();
+            
             var query = from vetites in Vetítések
                         join film in Filmek
                         on vetites.Film_ID equals film.Film_ID
@@ -203,6 +211,25 @@ namespace KOVI_D_Mozi
             Console.Write("\r\nKérlek válassz: ");
             Foglalás(Console.ReadLine());
         }
+        static void Keresés()
+        {
+            Console.Clear();
+            PrintHeader();
+            Console.Write("Mit keresel ?: ");
+            string keresett_film = Console.ReadLine();
+            var query = from vetites in Vetítések
+                        join film in Filmek
+                        on vetites.Film_ID equals film.Film_ID
+                        where film.Név.Equals(keresett_film)
+                        select new { vetites.ID, film.Név, vetites.Datum.S_date };
+            foreach (var i in query)
+            {
+                Console.WriteLine(i.ID + ") " + i.Név + " : " + i.S_date + " óra");
+            }
+            Console.Write("\r\nKérlek válassz: ");
+            Foglalás(Console.ReadLine());
+        }
+
         static void Foglalás(string sor) { }
         static void Main(string[] args)
         {
