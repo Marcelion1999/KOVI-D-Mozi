@@ -6,9 +6,9 @@ namespace KOVI_D_Mozi
 {
     class Szék
     {
-        private int Terem_ID;
-        private int Sor;
-        private int Oszlop;
+        private int terem_ID;
+        private int sor;
+        private int oszlop;
 
         public Szék(string sor)
         {
@@ -18,8 +18,8 @@ namespace KOVI_D_Mozi
             this.Oszlop = Convert.ToInt32(adat[2]);
         }
 
-        public int _Terem_ID { get => Terem_ID; set => Terem_ID = value; }
-        public int _Sor { get => Sor; set => Sor = value; }
-        public int _Oszlop { get => Oszlop; set => Oszlop = value; }
+        public int Terem_ID { get => terem_ID; set => terem_ID = value; }
+        public int Sor { get => sor; set => sor = value; }
+        public int Oszlop { get => oszlop; set => oszlop = value; }
     }
 }

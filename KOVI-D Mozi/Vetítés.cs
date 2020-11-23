@@ -7,10 +7,10 @@ namespace KOVI_D_Mozi
 {
     class Vetítés
     {
-        private int ID;
-        private int Film_ID;
-        private int Szek_ID;
-        private Dátum Datum;
+        private int iD;
+        private int film_ID;
+        private int szek_ID;
+        private Dátum datum;
 
         public Vetítés(string sor)
         {
@@ -18,13 +18,13 @@ namespace KOVI_D_Mozi
             this.ID = Convert.ToInt32(adat[0]);
             this.Film_ID = Convert.ToInt32(adat[1]);
             this.Szek_ID = Convert.ToInt32(adat[2]);
-            this.Datum = new Dátum(adat[3]);
+            this.datum = new Dátum(adat[3]);
         }
         ~Vetítés() { }
 
-        public int _ID { get => ID; set => ID = value; }
-        public int _Film_ID { get => Film_ID; set => Film_ID = value; }
-        public int _Szek_ID { get => Szek_ID; set => Szek_ID = value; }
-        internal Dátum _Datum { get => Datum; set => Datum = value; }
+        public int ID { get => iD; set => iD = value; }
+        public int Film_ID { get => film_ID; set => film_ID = value; }
+        public int Szek_ID { get => szek_ID; set => szek_ID = value; }
+        internal Dátum Datum { get => datum; set => datum = value; }
     }
 }

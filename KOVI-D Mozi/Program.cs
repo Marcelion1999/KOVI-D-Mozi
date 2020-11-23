@@ -11,7 +11,7 @@ namespace KOVI_D_Mozi
         static List<Vetítés> Vetítések = new List<Vetítés>();
         static List<Film> Filmek = new List<Film>();
         static List<Szék> Székek = new List<Szék>();
-
+        static List<Felhasználó> Userek = new List<Felhasználó>();
         #region Kinézet
         static int tableWidth = 75;
         static void PrintHeader()
@@ -51,12 +51,14 @@ namespace KOVI_D_Mozi
         #endregion
         #region Adat_betölt
         static StreamReader Olvasó;
+        static int Last_ID;
         public static void Feltölt() 
         {
             Film Adat_Film;
             Szék Adat_Szék;
             Vetítés Adat_Vetítés;
-          
+            Felhasználó User;
+
             if (File.Exists("Filmek.txt"))
             {
                 Olvasó = new StreamReader("Filmek.txt");
@@ -105,6 +107,24 @@ namespace KOVI_D_Mozi
             {
                 Console.WriteLine("Nem található a Vetítések.txt");
             }
+            if (File.Exists("Userek.txt"))
+            {
+                Olvasó = new StreamReader("Userek.txt");
+                string line;
+                while ((line = Olvasó.ReadLine()) != null)
+                {
+                    //Console.WriteLine(line);
+                    User = new Felhasználó(line);
+                    Userek.Add(User);
+                    Last_ID = User.ID;
+                }
+            }
+            else
+            {
+                Console.WriteLine("Nem található a Userek.txt");
+            }
+            Felhasználó admin = new Felhasználó();
+            Userek.Add(admin);
             Olvasó.Close();
         }
         #endregion
@@ -125,8 +145,10 @@ namespace KOVI_D_Mozi
             switch (Console.ReadLine())
             {
                 case "1":
+                    
                     break;
                 case "2":
+                    Regisztráció();
                     break;
                 case "3":
                     break;
@@ -140,25 +162,48 @@ namespace KOVI_D_Mozi
             }
             return true;
         }
+        static void Regisztráció() 
+        {
+            Console.Clear();
+            PrintHeader();
+            Console.Write("Kérlek add meg az e-mail címedet: ");
+            string email = Console.ReadLine();
+            Console.Write("Kérlek add meg a jelszót a fiókodhoz: ");
+            string jelszó = Console.ReadLine();
+            Console.Write("Kérlek add meg a telefonszámod: ");
+            string telefon = Console.ReadLine();
+            StreamWriter Író = new StreamWriter("Userek.txt",true);
+            try
+            {
+                Író.WriteLine("{0};{1};{2};{3}", Last_ID + 1, email, jelszó, telefon);
+                Last_ID++;
+            }
+            catch (Exception e)
+            {
 
+                Console.WriteLine("Nem sikerült a regisztráció");
+                Console.WriteLine("Hiba: {0}", e); throw;
+            }
+            Console.WriteLine("Sikerült a regisztráció");
+            Író.Flush();
+            Író.Close();
+           // Felhasználó user = new Felhasználó(email,jelszo,telefon);
+        }
         static void Listázás() 
         {
             var query = from vetites in Vetítések
-
                         join film in Filmek
-                        on vetites._Film_ID equals film._Film_ID
+                        on vetites.Film_ID equals film.Film_ID
+                        select new { vetites.ID, film.Név, vetites.Datum.S_date };
 
-                        select new { film._Név,
-                                     vetites._Datum.S_date
-                        };
-
-            // Execute the query.
             foreach (var i in query)
             {
-                Console.Write(i._Név + " : " + i.S_date + " óra");
+                Console.WriteLine(i.ID + ") " + i.Név + " : " + i.S_date + " óra");
             }
-            Console.ReadKey();
+            Console.Write("\r\nKérlek válassz: ");
+            Foglalás(Console.ReadLine());
         }
+        static void Foglalás(string sor) { }
         static void Main(string[] args)
         {
             bool showMenu = true;

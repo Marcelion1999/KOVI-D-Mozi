@@ -6,9 +6,8 @@ namespace KOVI_D_Mozi
 {
     class Film
     {
-        private string Név;
-
-        private int Film_ID;
+        private int film_ID;
+        private string név;
 
         public Film(string sor)
         {
@@ -17,7 +16,7 @@ namespace KOVI_D_Mozi
             this.Név = adat[1];
         }
 
-        public string _Név { get => Név; set => Név = value; }
-        public int _Film_ID { get => Film_ID; set => Film_ID = value; }
+        public int Film_ID { get => film_ID; set => film_ID = value; }
+        public string Név { get => név; set => név = value; }
     }
 }

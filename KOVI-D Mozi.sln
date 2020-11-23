@@ -9,6 +9,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		KOVI-D Mozi\bin\Debug\netcoreapp3.1\Filmek.txt = KOVI-D Mozi\bin\Debug\netcoreapp3.1\Filmek.txt
 		KOVI-D Mozi\bin\Debug\netcoreapp3.1\Székek.txt = KOVI-D Mozi\bin\Debug\netcoreapp3.1\Székek.txt
+		KOVI-D Mozi\bin\Debug\netcoreapp3.1\Userek.txt = KOVI-D Mozi\bin\Debug\netcoreapp3.1\Userek.txt
 		KOVI-D Mozi\bin\Debug\netcoreapp3.1\Vetítések.txt = KOVI-D Mozi\bin\Debug\netcoreapp3.1\Vetítések.txt
 	EndProjectSection
 EndProject
