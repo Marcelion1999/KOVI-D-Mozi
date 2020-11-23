@@ -13,7 +13,7 @@ namespace KOVI_D_Mozi
 
         public Dátum(string sor)
         { 
-            string[] adat = sor.Split(';');
+            string[] adat = sor.Split('-');
             this.Év = Convert.ToInt32(adat[0]);
             this.Hónap = Convert.ToInt32(adat[1]);
             this.Nap = Convert.ToInt32(adat[2]);

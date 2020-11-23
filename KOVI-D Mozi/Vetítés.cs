@@ -12,9 +12,13 @@ namespace KOVI_D_Mozi
         private int Szek_ID;
         private Dátum Datum;
 
-        public Vetítés(string sor,Dátum date)
+        public Vetítés(string sor)
         {
             string[] adat = sor.Split(';');
+            this.ID = Convert.ToInt32(adat[0]);
+            this.Film_ID = Convert.ToInt32(adat[1]);
+            this.Szek_ID = Convert.ToInt32(adat[2]);
+            this.Datum = new Dátum(adat[3]);
         }
         ~Vetítés() { }
 
