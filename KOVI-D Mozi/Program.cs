@@ -186,9 +186,9 @@ namespace KOVI_D_Mozi
                     Listázás();
                     break;
                 case "5":
-                    break;
-                default:
                     return false;
+                default:
+                    return true ;
             }
             return true;
         }
@@ -239,10 +239,30 @@ namespace KOVI_D_Mozi
 
         private static bool User_Menu()
         {
-            Console.WriteLine("User Menu");
-            Console.ReadKey();
+            Console.Clear();
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            PrintHeader("USER MENU");
+            Console.WriteLine("Válassz egy menüpontot:");
+            Console.WriteLine("\t1) Foglalás");
+            Console.WriteLine("\t2) SAMPLE MENU");
+            Console.WriteLine("\t3) Kijelentkezés");
 
-            return false;
+            Console.Write("\r\nKérlek válassz: ");
+
+            switch (Console.ReadLine())
+            {
+                case "1":
+                    Foglalás(" ");
+                    break;
+                case "2":
+                    break;
+                case "3":
+                    Console.ForegroundColor = ConsoleColor.Gray;
+                    return false;
+                default:
+                    return true;
+            }
+            return true;
         }
 
         private static bool Admin_Menu()
@@ -286,13 +306,15 @@ namespace KOVI_D_Mozi
             {
                 Író.WriteLine("{0};{1}", Film_Last_ID + 1, film_cím);
                 Film_Last_ID++;
+             
             }
             catch (Exception e)
             {
-
                 Console.WriteLine("Nem sikerült a Film felvétele");
                 Console.WriteLine("Hiba: {0}", e); throw;
             }
+            Console.WriteLine("Sikeresen felvitted : {0}\n Nyomj meg egy gombot, hogy továbblépj", film_cím);
+            Console.ReadKey();
             Író.Flush();
             Író.Close();
             Film_Betölt(); // Újra betölti,hogy benne legyen az amit most vitt fel
@@ -301,19 +323,46 @@ namespace KOVI_D_Mozi
         private static void Új_Vetítés()
         {
             Console.Clear();
-            PrintHeader("ADMIN - ÚJ Vetítés");
-            Console.Write("Kérlek add meg a Film Címét: ");
-            string film_cím = Console.ReadLine();
+            PrintHeader("ADMIN - ÚJ VETÍTÉS");
+            Console.WriteLine("FILMEK:");
+            var query = from film in Filmek
+                        select new { film.Film_ID, film.Név };
+
+            foreach (var i in query)
+            {
+                Console.WriteLine("\t" + i.Film_ID + ") " + i.Név);
+            }
+            Console.Write("\nKérlek add meg a Film ID-jét: ");
+            string film_id = Console.ReadLine();
             Console.Write("Kérlek add meg a termet: ");
             string terem = Console.ReadLine();
+            Console.Write("Kérlek add meg a dátumot: YYYY-MM-DD-HH ");
+            string datum = Console.ReadLine();
 
-            StreamWriter Író = new StreamWriter("Vetítések.txt", true);
+            Író = new StreamWriter("Vetítések.txt", true);
+
+            try
+            {
+                Író.WriteLine("{0};{1};{2};{3}", Vetítés_Last_ID + 1, film_id,terem, datum);
+                Vetítés_Last_ID++;
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Nem sikerült a Film felvétele");
+                Console.WriteLine("Hiba: {0}", e); throw;
+            }
+            Console.WriteLine("Sikeresen felvitted a vetítést!\n Nyomj meg egy gombot, hogy továbblépj");
+            Console.ReadKey();
+            Író.Flush();
+            Író.Close();
+            Vetítés_Betölt();
         }
 
         static void Regisztráció()
         {
             Console.Clear();
-            PrintHeader("KOVI-D MOZI");
+            PrintHeader("KOVI-D MOZI - REGISZTRÁCIÓ");
             Console.Write("Kérlek add meg az e-mail címedet: ");
             string email = Console.ReadLine();
             Console.Write("Kérlek add meg a jelszót a fiókodhoz: ");
@@ -341,7 +390,7 @@ namespace KOVI_D_Mozi
         static void Listázás()
         {
             Console.Clear();
-            PrintHeader("KOVI-D MOZI");
+            PrintHeader("KOVI-D MOZI - VETÍTÉSEK");
 
             var query = from vetites in Vetítések
                         join film in Filmek
@@ -358,7 +407,7 @@ namespace KOVI_D_Mozi
         static void Keresés()
         {
             Console.Clear();
-            PrintHeader("KOVI-D MOZI");
+            PrintHeader("KOVI-D MOZI - VETÍTÉS KERESÉS");
             Console.Write("Mit keresel ?: ");
             string keresett_film = Console.ReadLine();
             var query = from vetites in Vetítések
@@ -374,7 +423,12 @@ namespace KOVI_D_Mozi
             Foglalás(Console.ReadLine());
         }
 
-        static void Foglalás(string sor) { }
+        static void Foglalás(string sor) 
+        {
+            Console.Clear();
+            PrintHeader("KOVI-D MOZI - FOGLALÁS");
+            Console.ReadKey();
+        }
         #endregion
 
         static void Main(string[] args)
@@ -385,6 +439,10 @@ namespace KOVI_D_Mozi
             {
                 showMenu = MainMenu();
             }
+            Olvasó.Close();
+            //Író.Flush();
+            //Író.Close();
+            Environment.Exit(0);
         }
     }
 }
