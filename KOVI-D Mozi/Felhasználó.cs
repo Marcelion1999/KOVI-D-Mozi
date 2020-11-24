@@ -22,7 +22,7 @@ namespace KOVI_D_Mozi
         {
             this.admin = true;
             this.iD = 0;
-            this.email = "admin@admin.com";
+            this.email = "admin";
             this.jelszó = "admin";
             this.telefonszám = "3258";
         }

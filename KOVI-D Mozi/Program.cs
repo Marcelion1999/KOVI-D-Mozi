@@ -14,15 +14,15 @@ namespace KOVI_D_Mozi
         static List<Felhasználó> Userek = new List<Felhasználó>();
 
 
-        public enum User_Státusz { User_Állapot}
+        public enum User_Státusz { Admin, Regisztrált_Látogató,Nem_Regisztrált}
         public enum Jegy_Státusz { Jegy_Állapot}
 
         #region Kinézet
         static int tableWidth = 75;
-        static void PrintHeader()
+        static void PrintHeader(string title)
         {
             Console.WriteLine(new string('~', tableWidth));
-            PrintRow("KOVI-D MOZI");
+            PrintRow(title);
             Console.WriteLine(new string('~', tableWidth));
         }
 
@@ -136,20 +136,20 @@ namespace KOVI_D_Mozi
         private static bool MainMenu()
         {
             Console.Clear();
-            PrintHeader();
+            PrintHeader("KOVI-D MOZI");
             Console.WriteLine("Válassz egy menüpontot:");
-            Console.WriteLine("1) Bejelentkezés");
+            Console.WriteLine("\t1) Bejelentkezés");
             // felvitel
-            Console.WriteLine("2) Regisztráció");
-            Console.WriteLine("3) Keresés");
-            Console.WriteLine("4) Listázás");
-            Console.WriteLine("5) Kilépés");
+            Console.WriteLine("\t2) Regisztráció");
+            Console.WriteLine("\t3) Keresés");
+            Console.WriteLine("\t4) Listázás");
+            Console.WriteLine("\t5) Kilépés");
             Console.Write("\r\nKérlek válassz: ");
 
             switch (Console.ReadLine())
             {
                 case "1":
-                    
+                    Bejelentkezés();
                     break;
                 case "2":
                     Regisztráció();
@@ -167,10 +167,100 @@ namespace KOVI_D_Mozi
             }
             return true;
         }
+
+        static void Bejelentkezés() 
+        {
+            Console.Clear();
+            PrintHeader("KOVI - D MOZI");
+            Console.Write("Kérlek add meg az e-mail címedet: ");
+            string email = Console.ReadLine();
+            Console.Write("Kérlek add meg a jelszót a fiókodhoz: ");
+            string jelszó = Console.ReadLine();
+            
+                var query = from user in Userek
+                            where email.Equals(user.Email)
+                            where jelszó.Equals(user.Jelszó)
+                            select new { user.Admin, user.Email, user.Jelszó };
+
+            if (!query.Any())
+            {
+                Console.WriteLine("Nem sikerült bejelentkezni\nNyomj egy gombot a továbblépéshez!");
+                Console.ReadKey();
+            }
+            else
+            {
+                bool showMenu = true;
+                foreach (var i in query)
+                {
+                    Console.WriteLine(i.Email + " bejelentkezett");
+                    if (i.Admin == true)
+                    {
+                        while (showMenu)
+                        {
+                            showMenu = Admin_Menu();
+                        }
+                        
+                    }
+                    else if (i.Admin == false)
+                    {
+                        while (showMenu)
+                        {
+                            showMenu = User_Menu();
+                        }
+                    }
+                }
+            }
+        }
+
+        private static bool User_Menu()
+        {
+            Console.WriteLine("User Menu");
+            Console.ReadKey();
+
+            return false;
+        }
+
+        private static bool Admin_Menu()
+        {
+            Console.Clear();
+            PrintHeader("ADMIN MENU");
+            Console.WriteLine("Válassz egy menüpontot:");
+            Console.WriteLine("\t1) Vetítés felvitele");
+            Console.WriteLine("\t2) Film felvitele");
+            Console.WriteLine("\t3) Kijelentkezés");
+
+            Console.Write("\r\nKérlek válassz: ");
+
+            switch (Console.ReadLine())
+            {
+                case "1":
+                    Új_Vetítés();
+                    break;
+                case "2":
+                    Új_Film();
+                    break;
+                case "3":
+                    return false;
+                default:
+                    return true;
+            }
+            return true;
+        }
+
+        private static void Új_Film()
+        {
+            throw new NotImplementedException();
+        }
+
+        private static void Új_Vetítés()
+        {
+            throw new NotImplementedException();
+        }
+
         static void Regisztráció() 
         {
             Console.Clear();
-            PrintHeader();
+            PrintHeader("KOVI-D MOZI");
             Console.Write("Kérlek add meg az e-mail címedet: ");
             string email = Console.ReadLine();
             Console.Write("Kérlek add meg a jelszót a fiókodhoz: ");
@@ -197,7 +287,7 @@ namespace KOVI_D_Mozi
         static void Listázás() 
         {
             Console.Clear();
-            PrintHeader();
+            PrintHeader("KOVI-D MOZI");
             
             var query = from vetites in Vetítések
                         join film in Filmek
@@ -214,7 +304,7 @@ namespace KOVI_D_Mozi
         static void Keresés()
         {
             Console.Clear();
-            PrintHeader();
+            PrintHeader("KOVI-D MOZI");
             Console.Write("Mit keresel ?: ");
             string keresett_film = Console.ReadLine();
             var query = from vetites in Vetítések
