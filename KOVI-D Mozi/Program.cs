@@ -15,12 +15,16 @@ namespace KOVI_D_Mozi
         public enum User_Státusz { Admin, Regisztrált_Látogató,Nem_Regisztrált}
         public enum Jegy_Státusz { Jegy_Állapot}
 
+        static int ÁR = 1000;
         static StreamReader Olvasó;
         static StreamWriter Író;
 
         static int User_Last_ID;
         static int Film_Last_ID;
         static int Vetítés_Last_ID;
+        
+        static bool Logged_In = false;
+        
 
         #region Kinézet
         static int tableWidth = 75;
@@ -60,7 +64,6 @@ namespace KOVI_D_Mozi
 
         #endregion
         #region Adat_betölt
-
 
         static void User_Betölt() 
         {
@@ -230,6 +233,7 @@ namespace KOVI_D_Mozi
                     {
                         while (showMenu)
                         {
+                            Logged_In = true;
                             showMenu = User_Menu();
                         }
                     }
@@ -244,20 +248,21 @@ namespace KOVI_D_Mozi
             PrintHeader("USER MENU");
             Console.WriteLine("Válassz egy menüpontot:");
             Console.WriteLine("\t1) Foglalás");
-            Console.WriteLine("\t2) SAMPLE MENU");
+            Console.WriteLine("\t2) Vásárlás");
             Console.WriteLine("\t3) Kijelentkezés");
-
             Console.Write("\r\nKérlek válassz: ");
 
             switch (Console.ReadLine())
             {
                 case "1":
-                    Foglalás(" ");
+                    Listázás();
                     break;
                 case "2":
+                    Vásárlás();
                     break;
                 case "3":
                     Console.ForegroundColor = ConsoleColor.Gray;
+                    Logged_In = false;
                     return false;
                 default:
                     return true;
@@ -423,13 +428,208 @@ namespace KOVI_D_Mozi
             Foglalás(Console.ReadLine());
         }
 
-        static void Foglalás(string sor) 
+
+        #endregion
+        #region Foglalás
+        static void Foglalás(string vetítés_id)
         {
             Console.Clear();
+            int ID = Convert.ToInt32(vetítés_id);
             PrintHeader("KOVI-D MOZI - FOGLALÁS");
+            if (!Logged_In)
+            {
+                Console.WriteLine("Előszőr be kell jelentkezned vagy regiszrálnod!");
+                Console.WriteLine("Válassz egy menüpontot:");
+                Console.WriteLine("\t1) Bejelentkezés");
+                Console.WriteLine("\t2) Regisztráció");
+                Console.WriteLine("\t3) Visszalépés");
+                Console.Write("\r\nKérlek válassz: ");
+
+                switch (Console.ReadLine())
+                {
+                    case "1":
+                        Bejelentkezés();
+                        break;
+                    case "2":
+                        Regisztráció();
+                        break;
+                    case "3":
+                        Console.WriteLine("Nyomj bármilyen gombot a folytatáshoz");
+                        break;
+                    default:
+                        break;
+                }
+            }
+            else
+            {
+                
+                var query = from vetites in Vetítések
+                            join film in Filmek
+                            on vetites.Film_ID equals film.Film_ID
+                            where vetites.ID.Equals(ID)
+                            select new { vetites.ID, film.Név, vetites.Datum.S_date };
+                string Film_Név = " ";
+                string Vetítés_Dátum = " ";
+                int Vetítés_ID = 0;
+                var item = query.First();
+                Film_Név = item.Név;
+                Vetítés_Dátum = item.S_date;
+                Vetítés_ID = item.ID;
+                Console.WriteLine("Foglalás a következőre: " + Film_Név + " \n\tekkor: " + Vetítés_Dátum + " órakor");
+                int[,] Foglalt = FoglaltSzékek(Vetítés_ID); //foglalt
+                Táblázat_Rajz();
+                Székrajz(Foglalt);
+                Console.Write("\nHány jegyet szeretnél venni?: ");
+                int db = Convert.ToInt32(Console.ReadLine());
+                Író = new StreamWriter("Székek.txt", true);
+                int sor = 0;
+                int oszlop = 0;
+                for (int i = 0; i < db; i++)
+                {
+                    Console.Write("Az {0}. jegy hova szóljon?: \nSor:",i+1);
+                    sor = Convert.ToInt32(Console.ReadLine());
+                    Console.Write("Oszlop:");
+                    oszlop = Convert.ToInt32(Console.ReadLine());
+                    if (Keres(Foglalt, sor,oszlop) == true)
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine("Ez a hely már foglalt! \nKérlek válassz másikat");
+                        i--;
+                        Console.ForegroundColor = ConsoleColor.Yellow;
+                    }
+                    else
+                    {
+                        try
+                        {
+                            Író.WriteLine("{0};{1};{2}", Vetítés_ID, sor, oszlop);
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine("Nem sikerült a felvétel");
+                            Console.WriteLine("Hiba: {0}", e); throw;
+                        }
+                    }
+                   
+                }
+                Console.WriteLine("Sikeresen foglaltál!\nNyomj meg egy gombot, hogy továbblépj");
+                Console.ReadKey();
+                Író.Flush();
+                Író.Close();
+                Szék_Betölt();
+                Console.WriteLine("A jegyeid ára: {0}",db*ÁR);
+
+            }
             Console.ReadKey();
         }
+        static bool Keres(int[,] matrix, int sor, int oszlop) 
+        {
+            for (int x = 0; x < matrix.GetLength(0); x++)
+            {
+                for (int y = 0; y < matrix.GetLength(1); y++) //
+                {
+                    if (matrix[sor-1,oszlop-1] == 1)
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false; 
+        }
+        static void Táblázat_Rajz()
+        {
+            Console.ForegroundColor = ConsoleColor.Gray;
+            Console.Write("     ");
+            for (int i = 0; i < 8; i++)
+            {
+                Console.Write("{0}  ", i + 1);
+            }
+            Console.WriteLine();
+        }
+        private static bool Foglalás_Menu() 
+        {
+            Console.WriteLine("Válassz egy menüpontot:");
+            Console.WriteLine("\t1) Bejelentkezés");
+            Console.WriteLine("\t2) Regisztráció");
+            Console.WriteLine("\t3) Keresés");
+            Console.WriteLine("\t4) Listázás");
+            Console.WriteLine("\t5) Kilépés");
+            Console.Write("\r\nKérlek válassz: ");
+
+            switch (Console.ReadLine())
+            {
+                case "1":
+                    Bejelentkezés();
+                    break;
+                case "2":
+                    Regisztráció();
+                    break;
+                case "3":
+                    Keresés();
+                    break;
+                case "4":
+                    Listázás();
+                    break;
+                case "5":
+                    return false;
+                default:
+                    return true;
+            }
+            return true;
+
+        }
+        private static int[,] FoglaltSzékek(int vetítés_ID)
+        {
+            int[,] matrix = new int[8, 8];
+            foreach (var item in Székek)
+            {
+                if (item.Vetítés_ID == vetítés_ID)
+                {
+                    for (int x = 0; x < matrix.GetLength(0); x++)
+                    {
+                        for (int y = 0; y < matrix.GetLength(1); y++) //
+                        {
+                            if (item.Sor == x + 1)
+                            {
+                                if (item.Oszlop == y + 1)
+                                {
+                                    //Console.WriteLine("Foglalt: {0} {1}",x+1,y+1);
+                                    matrix[x, y] = 1;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            return matrix;
+        }
+        private static void Székrajz(int[,] Foglalt)
+        {
+            for (int x = 0; x < Foglalt.GetLength(0); x++) //10 sor
+            {
+                Console.ForegroundColor = ConsoleColor.Gray;
+                Console.Write("{0} | ", x + 1);
+                for (int y = 0; y < Foglalt.GetLength(1); y++) // 20 oszlop
+                {
+                    if (Foglalt[x, y] == 1)
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.Write(" {0} ", (char)9632);
+                        Console.ForegroundColor = ConsoleColor.Gray;
+                    }
+                    else
+                    {
+                        Console.ForegroundColor = ConsoleColor.Green;
+                        Console.Write(" {0} ", (char)9632);
+                        Console.ForegroundColor = ConsoleColor.Gray;
+                    }
+                }
+                Console.WriteLine();
+                Console.ForegroundColor = ConsoleColor.Yellow;
+            }
+        }
         #endregion
+        static void Vásárlás() { }
 
         static void Main(string[] args)
         {
