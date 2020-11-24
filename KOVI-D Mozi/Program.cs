@@ -12,10 +12,15 @@ namespace KOVI_D_Mozi
         static List<Film> Filmek = new List<Film>();
         static List<Szék> Székek = new List<Szék>();
         static List<Felhasználó> Userek = new List<Felhasználó>();
-
-
         public enum User_Státusz { Admin, Regisztrált_Látogató,Nem_Regisztrált}
         public enum Jegy_Státusz { Jegy_Állapot}
+
+        static StreamReader Olvasó;
+        static StreamWriter Író;
+
+        static int User_Last_ID;
+        static int Film_Last_ID;
+        static int Vetítés_Last_ID;
 
         #region Kinézet
         static int tableWidth = 75;
@@ -55,73 +60,21 @@ namespace KOVI_D_Mozi
 
         #endregion
         #region Adat_betölt
-        static StreamReader Olvasó;
-        static int Last_ID;
-        public static void Feltölt() 
+
+
+        static void User_Betölt() 
         {
-            Film Adat_Film;
-            Szék Adat_Szék;
-            Vetítés Adat_Vetítés;
+            Userek.Clear();
             Felhasználó User;
-
-            if (File.Exists("Filmek.txt"))
-            {
-                Olvasó = new StreamReader("Filmek.txt");
-                string line;
-                while ((line = Olvasó.ReadLine()) != null)
-                {
-                   //Console.WriteLine(line);
-                    Adat_Film = new Film(line);
-                    Filmek.Add(Adat_Film);
-                }
-            }
-            else
-            {
-                Console.WriteLine("Nem található a Filmek.txt");
-            }
-
-            if (File.Exists("Székek.txt"))
-            {
-                Olvasó = new StreamReader("Székek.txt");
-                string line;
-                while ((line = Olvasó.ReadLine()) != null)
-                {
-                    //Console.WriteLine(line);
-                    Adat_Szék = new Szék(line);
-                    Székek.Add(Adat_Szék);
-                }
-
-            }
-            else
-            {
-                Console.WriteLine("Nem található a Székek.txt");
-            }
-
-            if (File.Exists("Vetítések.txt"))
-            {
-                Olvasó = new StreamReader("Vetítések.txt");
-                string line;
-                while ((line = Olvasó.ReadLine()) != null)
-                {
-                    //Console.WriteLine(line);
-                    Adat_Vetítés = new Vetítés(line);
-                    Vetítések.Add(Adat_Vetítés);
-                }
-            }
-            else
-            {
-                Console.WriteLine("Nem található a Vetítések.txt");
-            }
             if (File.Exists("Userek.txt"))
             {
                 Olvasó = new StreamReader("Userek.txt");
                 string line;
                 while ((line = Olvasó.ReadLine()) != null)
                 {
-                    //Console.WriteLine(line);
                     User = new Felhasználó(line);
                     Userek.Add(User);
-                    Last_ID = User.ID;
+                    User_Last_ID = User.ID;
                 }
             }
             else
@@ -132,7 +85,79 @@ namespace KOVI_D_Mozi
             Userek.Add(admin);
             Olvasó.Close();
         }
+        static void Film_Betölt() 
+        {
+            Filmek.Clear();
+            Film Adat_Film;
+            if (File.Exists("Filmek.txt"))
+            {
+                Olvasó = new StreamReader("Filmek.txt");
+                string line;
+                while ((line = Olvasó.ReadLine()) != null)
+                {
+                    Adat_Film = new Film(line);
+                    Filmek.Add(Adat_Film);
+                    Film_Last_ID = Adat_Film.Film_ID;
+                }
+            }
+            else
+            {
+                Console.WriteLine("Nem található a Filmek.txt");
+            }
+            Olvasó.Close();
+        }
+        static void Vetítés_Betölt() 
+        {
+            Vetítések.Clear();
+            Vetítés Adat_Vetítés;
+            if (File.Exists("Vetítések.txt"))
+            {
+                Olvasó = new StreamReader("Vetítések.txt");
+                string line;
+                while ((line = Olvasó.ReadLine()) != null)
+                {
+                    Adat_Vetítés = new Vetítés(line);
+                    Vetítések.Add(Adat_Vetítés);
+                    Vetítés_Last_ID = Adat_Vetítés.ID;
+                }
+            }
+            else
+            {
+                Console.WriteLine("Nem található a Vetítések.txt");
+            }
+            Olvasó.Close();
+        }
+        static void Szék_Betölt() 
+        { 
+            Székek.Clear();
+            Szék Adat_Szék;
+            if (File.Exists("Székek.txt"))
+            {
+                Olvasó = new StreamReader("Székek.txt");
+                string line;
+                while ((line = Olvasó.ReadLine()) != null)
+                {
+                    Adat_Szék = new Szék(line);
+                    Székek.Add(Adat_Szék);
+                }
+            }
+            else
+            {
+                Console.WriteLine("Nem található a Székek.txt");
+            }
+            Olvasó.Close();
+        }
+        public static void Feltölt() 
+        {
+            Film_Betölt();
+            Vetítés_Betölt();
+            Szék_Betölt();
+            User_Betölt();
+            Olvasó.Close();
+        }
         #endregion
+
+        #region Menu
         private static bool MainMenu()
         {
             Console.Clear();
@@ -168,7 +193,7 @@ namespace KOVI_D_Mozi
             return true;
         }
 
-        static void Bejelentkezés() 
+        static void Bejelentkezés()
         {
             Console.Clear();
             PrintHeader("KOVI - D MOZI");
@@ -176,11 +201,11 @@ namespace KOVI_D_Mozi
             string email = Console.ReadLine();
             Console.Write("Kérlek add meg a jelszót a fiókodhoz: ");
             string jelszó = Console.ReadLine();
-            
-                var query = from user in Userek
-                            where email.Equals(user.Email)
-                            where jelszó.Equals(user.Jelszó)
-                            select new { user.Admin, user.Email, user.Jelszó };
+
+            var query = from user in Userek
+                        where email.Equals(user.Email)
+                        where jelszó.Equals(user.Jelszó)
+                        select new { user.Admin, user.Email, user.Jelszó };
 
             if (!query.Any())
             {
@@ -199,7 +224,7 @@ namespace KOVI_D_Mozi
                         {
                             showMenu = Admin_Menu();
                         }
-                        
+
                     }
                     else if (i.Admin == false)
                     {
@@ -223,7 +248,9 @@ namespace KOVI_D_Mozi
         private static bool Admin_Menu()
         {
             Console.Clear();
+            Console.ForegroundColor = ConsoleColor.Green;
             PrintHeader("ADMIN MENU");
+            //Console.ForegroundColor = ConsoleColor.Gray;
             Console.WriteLine("Válassz egy menüpontot:");
             Console.WriteLine("\t1) Vetítés felvitele");
             Console.WriteLine("\t2) Film felvitele");
@@ -240,6 +267,7 @@ namespace KOVI_D_Mozi
                     Új_Film();
                     break;
                 case "3":
+                    Console.ForegroundColor = ConsoleColor.Gray;
                     return false;
                 default:
                     return true;
@@ -249,15 +277,40 @@ namespace KOVI_D_Mozi
 
         private static void Új_Film()
         {
-            throw new NotImplementedException();
+            Console.Clear();
+            PrintHeader("ADMIN - ÚJ FILM");
+            Console.Write("Kérlek add meg a film címét: ");
+            string film_cím = Console.ReadLine();
+            Író = new StreamWriter("Filmek.txt", true);
+            try
+            {
+                Író.WriteLine("{0};{1}", Film_Last_ID + 1, film_cím);
+                Film_Last_ID++;
+            }
+            catch (Exception e)
+            {
+
+                Console.WriteLine("Nem sikerült a Film felvétele");
+                Console.WriteLine("Hiba: {0}", e); throw;
+            }
+            Író.Flush();
+            Író.Close();
+            Film_Betölt(); // Újra betölti,hogy benne legyen az amit most vitt fel
         }
 
         private static void Új_Vetítés()
         {
-            throw new NotImplementedException();
+            Console.Clear();
+            PrintHeader("ADMIN - ÚJ Vetítés");
+            Console.Write("Kérlek add meg a Film Címét: ");
+            string film_cím = Console.ReadLine();
+            Console.Write("Kérlek add meg a termet: ");
+            string terem = Console.ReadLine();
+
+            StreamWriter Író = new StreamWriter("Vetítések.txt", true);
         }
 
-        static void Regisztráció() 
+        static void Regisztráció()
         {
             Console.Clear();
             PrintHeader("KOVI-D MOZI");
@@ -267,11 +320,11 @@ namespace KOVI_D_Mozi
             string jelszó = Console.ReadLine();
             Console.Write("Kérlek add meg a telefonszámod: ");
             string telefon = Console.ReadLine();
-            StreamWriter Író = new StreamWriter("Userek.txt",true);
+            Író = new StreamWriter("Userek.txt", true);
             try
             {
-                Író.WriteLine("{0};{1};{2};{3}", Last_ID + 1, email, jelszó, telefon);
-                Last_ID++;
+                Író.WriteLine("{0};{1};{2};{3}", User_Last_ID + 1, email, jelszó, telefon);
+                User_Last_ID++;
             }
             catch (Exception e)
             {
@@ -282,13 +335,14 @@ namespace KOVI_D_Mozi
             Console.WriteLine("Sikerült a regisztráció");
             Író.Flush();
             Író.Close();
-           // Felhasználó user = new Felhasználó(email,jelszo,telefon);
+            User_Betölt(); // újratölti,hogy benne legyen az újonnan felvitt
+            // Felhasználó user = new Felhasználó(email,jelszo,telefon);
         }
-        static void Listázás() 
+        static void Listázás()
         {
             Console.Clear();
             PrintHeader("KOVI-D MOZI");
-            
+
             var query = from vetites in Vetítések
                         join film in Filmek
                         on vetites.Film_ID equals film.Film_ID
@@ -321,6 +375,8 @@ namespace KOVI_D_Mozi
         }
 
         static void Foglalás(string sor) { }
+        #endregion
+
         static void Main(string[] args)
         {
             bool showMenu = true;
