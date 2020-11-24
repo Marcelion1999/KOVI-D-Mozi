@@ -44,11 +44,11 @@
 ### Installation
 
 
-### Plugins
+### Whole Project
 
-| Plugin | README |
+| Files | README |
 | ------ | ------ |
-| Google Drive | [ ][PlGd] |
+| Google Drive | https://drive.google.com/file/d/1a5sJm3j7_X1PLPhlYcQtnMdLDoBGQa5e/view?usp=sharing |
 
 ### Development
 
